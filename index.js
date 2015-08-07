@@ -22,6 +22,7 @@ function s3syncer(db, options) {
   options.cacheSrc = options.cacheSrc || __dirname + '/.sync'
   options.cacheDest = options.cacheDest || '/.sync'
   options.retries = options.retries || 7;
+  options.overwrite = options.overwrite || false;
 
   var client = knox.createClient(options)
     , queue = createQueue(options.concurrency)
@@ -87,6 +88,7 @@ function s3syncer(db, options) {
       client.headFile(relative, function(err, res) {
         if (err) return next(err)
         if (
+          options.overwrite === true ||
           res.statusCode === 404 || (
           res.headers['x-amz-meta-syncfilehash'] &&
           res.headers['x-amz-meta-syncfilehash'] !== details.md5
